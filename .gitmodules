@@ -1,0 +1,4 @@
+[submodule "dist"]
+	path = dist
+	url = https://github.com/gluck/react-sensor-dash.git
+	branch = gh-pages

@@ -20,13 +20,13 @@ class AppComponent extends React.Component {
   render() {
     return (
       <div className="index">
-        <SensorChart channel_id={110113} api_key='XI17UCD9HC0A9H68' total={7000} average={10} />
-        <SensorChart channel_id={110112} api_key='4LGCNX1EUFQL51K0' total={7000} average={10} />
-        <SensorChart channel_id={109473} api_key='55XIB4H6YRRV5Y40' total={7000} median={10} />
-        <SensorChart channel_id={109473} api_key='55XIB4H6YRRV5Y40' total={7000} median={10} field='2'/>
-        <SensorChart channel_id={107110} api_key='7OR1QG7NTVDAQHGX' total={7000} average={10}/>
-        <SensorChart channel_id={108704} api_key='DGQN2E2Z6REHAT35' total={7000} average={10} field='3'/>
-        <SensorChart channel_id={108704} api_key='DGQN2E2Z6REHAT35' total={7000} average={10} field='4'/>
+        <SensorChart channel_id={110113} api_key='XI17UCD9HC0A9H68' total={10000} average={10} unit='V' />
+        <SensorChart channel_id={110112} api_key='4LGCNX1EUFQL51K0' total={10000} average={10} unit='V' />
+        <SensorChart channel_id={109473} api_key='55XIB4H6YRRV5Y40' total={10000} median ={10} unit='°C' />
+        <SensorChart channel_id={109473} api_key='55XIB4H6YRRV5Y40' total={10000} median ={10} field='2' unit='%' />
+        <SensorChart channel_id={107110} api_key='7OR1QG7NTVDAQHGX' total={10000} average={10} unit='lx' />
+        <SensorChart channel_id={108704} api_key='DGQN2E2Z6REHAT35' total={10000} average={10} field='3' unit='µg/m³' />
+        <SensorChart channel_id={108704} api_key='DGQN2E2Z6REHAT35' total={10000} average={10} field='4' unit='µg/m³' />
       </div>
     );
   }
@@ -37,6 +37,7 @@ class SensorChart extends React.Component {
     super(props);
     this.sub = new Rx.Subscription();
     this.state = {
+      channel: {},
       config: {}
     };
   }
@@ -57,29 +58,59 @@ class SensorChart extends React.Component {
       return `https://thingspeak.com/channels/${this.props.channel_id}/field/${this.props.field}.json?median=${this.props.median}&offset=0&results=${this.props.total}&api_key=${this.props.api_key}`;
     return `https://thingspeak.com/channels/${this.props.channel_id}/field/${this.props.field}.json?offset=0&results=${this.props.total}&api_key=${this.props.api_key}`;
   }
+  getUpdateInterval() {
+    if (this.props.average)
+      return this.props.average*60*1000;
+    if (this.props.median)
+      return this.props.median*60*1000;
+    return 30*1000;
+  }
+  getValue(x) {
+    return x['field'+this.props.field];
+  }
+  getPoint(x) {
+    let val = this.getValue(x);
+    if (val)
+      return [ Date.parse(x.created_at), +parseFloat(val).toFixed(3)];
+    return null;
+  }
+  getTitle(channel, x) {
+    return {
+      text: `${channel.name} - ${this.getValue(channel)} - ${x[1]} ${this.props.unit}`,
+      align: 'center',
+      verticalAlign: 'middle'
+    };
+  }
   componentDidMount() {
     this.sub.add(
-      Rx.Observable.interval(15000)
+      Rx.Observable.interval(this.getUpdateInterval())
         .flatMap(() => Rx.Observable.from(fetch(this.computeLastURL())))
         .flatMap(r => r.json())
-        .map(x => [ Date.parse(x.created_at), +parseFloat(x['field'+this.props.field]).toFixed(3)])
+        .map(this.getPoint.bind(this))
+        .filter(x => x)
         .subscribe(x => {
           let chart = this.refs.chart.getChart();
-          chart.series[0].addPoint(x, true, false);
+          let series = chart.series[0];
+          if (series.data[series.data.length-1].x == x[0])
+            series.removePoint(series.data.length-1, false);
+          series.addPoint(x, false);
+          chart.redraw();
+          chart.setTitle(this.getTitle(this.state.channel, x));
         })
     );
     this.sub.add(Rx.Observable.from(fetch(this.computeDownloadURL()))
       .flatMap(r => r.json())
-      .flatMap(res => Rx.Observable.from(res.feeds).filter(x => x['field'+this.props.field]).map(x => [ Date.parse(x.created_at), +parseFloat(x['field'+this.props.field]).toFixed(3)]).toArray().map(data => ({res, data})))
+      .flatMap(res => Rx.Observable.from(res.feeds).map(this.getPoint.bind(this)).filter(x => x).toArray().map(data => ({res, data})))
       .subscribe(({res, data}) => {
-      this.setState({config: {
-          chart: {
+        let channel = res.channel;
+        this.setState({
+          channel,
+          config: {
+            chart: {
               type: 'line',
               zoomType: 'x'
             },
-            title: {
-              text: res.channel.name
-            },
+            title: this.getTitle(channel, data[data.length-1]),
             plotOptions: {
               line: {
                 color: '#d62020'
@@ -93,11 +124,14 @@ class SensorChart extends React.Component {
             xAxis: {
               type: 'datetime'
             },
+            tooltip: {
+              valueSuffix: this.props.unit ? ' '+this.props.unit : ''
+            },
             yAxis: {
               title: {
-                text: res.channel['field'+this.props.field]
+                text: this.getValue(channel)
               },
-              min: null ,
+              min: null,
               max: null
             },
             legend: {
@@ -105,11 +139,12 @@ class SensorChart extends React.Component {
             },
             series: [{
               data:  data,
-              name: res.channel['field'+this.props.field]
+              name: this.getValue(channel)
             }]
           }
-      });
-    }));
+        });
+      })
+    );
   }
   render() {
     return (
