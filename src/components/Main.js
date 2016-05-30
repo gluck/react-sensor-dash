@@ -21,8 +21,11 @@ class AppComponent extends React.Component {
   render() {
     return (
       <div className="index">
-        <SensorChart channel_id={110113} api_key='XI17UCD9HC0A9H68' average={10} unit='V' />
-        <SensorChart channel_id={110112} api_key='4LGCNX1EUFQL51K0' average={10} unit='V' />
+        <SensorChart channel_id={110113} api_key='XI17UCD9HC0A9H68' average={10} unit='V'/>
+        <SensorChart channel_id={110112} api_key='4LGCNX1EUFQL51K0' average={10} unit='V'/>
+        <SensorChart channel_id={116340} api_key='G560Z466ZI4V386X' average={10} unit='V'/>
+        <SensorChart channel_id={116344} api_key='5X4GM5DIHPOIKU43' average={10} unit='V'/>
+        <SensorChart channel_id={116345} api_key='OHB0H0GPATON7ZGS' average={10} unit='V'/>
         <SensorChart channel_id={109473} api_key='55XIB4H6YRRV5Y40' median ={10} unit='°C' />
         <SensorChart channel_id={109473} api_key='55XIB4H6YRRV5Y40' median ={10} field='2' unit='%' />
         <SensorChart channel_id={107110} api_key='7OR1QG7NTVDAQHGX' average={10} unit='lx' />
@@ -113,12 +116,13 @@ class SensorChart extends React.Component {
   getPoint(x) {
     let val = this.getValue(x);
     if (val)
-      return [ Date.parse(x.created_at), +parseFloat(val).toFixed(3)];
+      return [ Date.parse(x.created_at), this.props.format(parseFloat(val))];
     return null;
   }
   refreshTitle() {
     let chart = this.refs.chart.getChart();
     let series = chart.series[0];
+    if (!series.data) return;
     chart.setTitle({
       text: `${this.state.channel.name} - ${this.getValue(this.state.channel)} - ${series.data[series.data.length-1].y} ${this.props.unit}`
     });
@@ -141,7 +145,7 @@ class SensorChart extends React.Component {
         })
     );
     this.sub.add(
-      Rx.Observable.interval(2000).take(7)
+      Rx.Observable.interval(2000).take(2)
       .flatMap(r => {
         return Rx.Observable.from(fetch(this.computeDownloadURL(r)))
         .flatMap(r => r.json())
@@ -175,7 +179,8 @@ class SensorChart extends React.Component {
 }
 
 SensorChart.defaultProps = {
-  field: '1'
+  field: '1',
+  format: x => +x.toFixed(3)
 };
 
 AppComponent.defaultProps = {
