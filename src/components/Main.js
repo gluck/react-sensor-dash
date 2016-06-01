@@ -21,11 +21,14 @@ class AppComponent extends React.Component {
   render() {
     return (
       <div className="index">
-        <SensorChart channel_id={110113} api_key='XI17UCD9HC0A9H68' average={10} unit='V'/>
+        <SensorChart channel_id={110113} api_key='XI17UCD9HC0A9H68' average={10} unit='ppm' format={v => +(2.697371312*Math.pow(v, -16.71115893)).toFixed(3)}/>
+        <SensorChart channel_id={121133} api_key='1508XIMXPKBOFZY2' average={10} unit='ppm'/>
         <SensorChart channel_id={110112} api_key='4LGCNX1EUFQL51K0' average={10} unit='V'/>
         <SensorChart channel_id={116340} api_key='G560Z466ZI4V386X' average={10} unit='V'/>
         <SensorChart channel_id={116344} api_key='5X4GM5DIHPOIKU43' average={10} unit='V'/>
         <SensorChart channel_id={116345} api_key='OHB0H0GPATON7ZGS' average={10} unit='V'/>
+        <SensorChart channel_id={121447} api_key='WTWRC4M0RJSP4CMB' average={10} unit='V'/>
+        <SensorChart channel_id={121133} api_key='1508XIMXPKBOFZY2' average={10} field='2' unit='°'/>
         <SensorChart channel_id={109473} api_key='55XIB4H6YRRV5Y40' median ={10} unit='°C' />
         <SensorChart channel_id={109473} api_key='55XIB4H6YRRV5Y40' median ={10} field='2' unit='%' />
         <SensorChart channel_id={107110} api_key='7OR1QG7NTVDAQHGX' average={10} unit='lx' />
@@ -145,7 +148,7 @@ class SensorChart extends React.Component {
         })
     );
     this.sub.add(
-      Rx.Observable.interval(2000).take(2)
+      Rx.Observable.interval(2000).take(1)
       .flatMap(r => {
         return Rx.Observable.from(fetch(this.computeDownloadURL(r)))
         .flatMap(r => r.json())
