@@ -1,22 +1,44 @@
 require('normalize.css/normalize.css');
-require('styles/App.css');
+require('../styles/App.css');
 
 import React from 'react';
 import Rx from 'rxjs/Rx';
-import Highcharts from 'highcharts';
-
 
 const ReactHighcharts = require('react-highcharts');
-window.Highcharts = Highcharts;
-require('highcharts/themes/dark-unica')
+require('highcharts/themes/dark-unica')(ReactHighcharts.Highcharts)
 var moment = require('moment');
 
-Highcharts.setOptions({
+ReactHighcharts.Highcharts.setOptions({
 	global: {
 		useUTC: false
 	}
 });
+/*
+          {channel_id:123706, api_key:'69IOUZWG8C0M6FDD', median:10, field:'3', unit:'bar'},
+          {channel_id:124108, api_key:'HMR5HK2ZVK3DX9JW', median:10, field:'3', unit:'bar'},
+          {channel_id:124198, api_key:'BT8NDK9IKWYSQBLS', median:10, field:'3', unit:'bar'},
+          {channel_id:124283, api_key:'KI6NT7BLFJEB789E', median:10, field:'3', unit:'bar'}
 
+          {channel_id:124198, api_key:'BT8NDK9IKWYSQBLS', median:10, unit:'°C'},
+          {channel_id:124283, api_key:'KI6NT7BLFJEB789E', median:10, unit:'°C'},
+
+          {channel_id:124198, api_key:'BT8NDK9IKWYSQBLS', median:10, field:'2', unit:'%'},
+          {channel_id:124283, api_key:'KI6NT7BLFJEB789E', median:10, field:'2', unit:'%'}
+
+          {channel_id:110112, api_key:'4LGCNX1EUFQL51K0', average:10, unit:'V', yAxis:1},
+          {channel_id:116344, api_key:'5X4GM5DIHPOIKU43', average:10, unit:'V', yAxis:2},
+          {channel_id:121447, api_key:'WTWRC4M0RJSP4CMB', average:10, unit:'V', yAxis:2}
+
+          {channel_id:124108, api_key:'HMR5HK2ZVK3DX9JW', median:10, unit:'°C'},
+          {channel_id:123706, api_key:'69IOUZWG8C0M6FDD', median:10, unit:'°C'},
+          {channel_id:124108, api_key:'HMR5HK2ZVK3DX9JW', median:10, field:'2', unit:'%'},
+          {channel_id:123706, api_key:'69IOUZWG8C0M6FDD', median:10, field:'2', unit:'%'},
+        <SensorMultipleChart lines={[
+          {channel_id:116340, api_key:'G560Z466ZI4V386X', average:10, unit:'V'}
+          ]} />
+        <SensorMultipleChart lines={[
+          ]} />
+*/
 class AppComponent extends React.Component {
   render() {
     return (
@@ -26,27 +48,13 @@ class AppComponent extends React.Component {
           {channel_id:121133, api_key:'1508XIMXPKBOFZY2', average:10, unit:'ppm'}
           ]} />
         <SensorMultipleChart lines={[
-          {channel_id:110112, api_key:'4LGCNX1EUFQL51K0', average:10, unit:'V', yAxis:1},
-          {channel_id:116344, api_key:'5X4GM5DIHPOIKU43', average:10, unit:'V'},
-          {channel_id:121447, api_key:'WTWRC4M0RJSP4CMB', average:10, unit:'V'}
-          ]} />
-        <SensorMultipleChart lines={[
           {channel_id:109473, api_key:'55XIB4H6YRRV5Y40', median:10, unit:'°C'},
           {channel_id:123479, api_key:'ZIZIYXS5HLRG1NSM', median:10, unit:'°C'},
-          {channel_id:123706, api_key:'69IOUZWG8C0M6FDD', median:10, unit:'°C'},
-          {channel_id:124108, api_key:'HMR5HK2ZVK3DX9JW', median:10, unit:'°C'},
-          {channel_id:124198, api_key:'BT8NDK9IKWYSQBLS', median:10, unit:'°C'},
           {channel_id:107110, api_key:'7OR1QG7NTVDAQHGX', average:10, unit:'lx', yAxis:1}
           ]} />
         <SensorMultipleChart lines={[
-          {channel_id:109473, api_key:'55XIB4H6YRRV5Y40', median:10, field:'2', unit:'%'},
           {channel_id:123479, api_key:'ZIZIYXS5HLRG1NSM', median:10, field:'2', unit:'%'},
-          {channel_id:123706, api_key:'69IOUZWG8C0M6FDD', median:10, field:'2', unit:'%'},
-          {channel_id:124108, api_key:'HMR5HK2ZVK3DX9JW', median:10, field:'2', unit:'%'},
-          {channel_id:124198, api_key:'BT8NDK9IKWYSQBLS', median:10, field:'2', unit:'%'}
-          ]} />
-        <SensorMultipleChart lines={[
-          {channel_id:116340, api_key:'G560Z466ZI4V386X', average:10, unit:'V'}
+          {channel_id:109473, api_key:'55XIB4H6YRRV5Y40', median:10, field:'2', unit:'%'}
           ]} />
         <SensorMultipleChart lines={[
           {channel_id:116345, api_key:'OHB0H0GPATON7ZGS', average:10, unit:'V'}
@@ -56,9 +64,7 @@ class AppComponent extends React.Component {
           {channel_id:108704, api_key:'DGQN2E2Z6REHAT35', average:10, field:'4', unit:'µg/m³', yAxis:1}
           ]} />
         <SensorMultipleChart lines={[
-          {channel_id:123479, api_key:'ZIZIYXS5HLRG1NSM', median:10, field:'4', unit:'bar'},
-          {channel_id:123706, api_key:'69IOUZWG8C0M6FDD', median:10, field:'3', unit:'bar'},
-          {channel_id:124108, api_key:'HMR5HK2ZVK3DX9JW', median:10, field:'3', unit:'bar'}
+          {channel_id:123479, api_key:'ZIZIYXS5HLRG1NSM', median:10, field:'4', unit:'bar'}
           ]} />
       </div>
     );
